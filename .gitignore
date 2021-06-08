@@ -3,3 +3,5 @@
 *.swp
 /bin/
 .idea
+*.db
+cmd/bolt/bolt

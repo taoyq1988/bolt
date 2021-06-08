@@ -7,11 +7,14 @@ import (
 	"unsafe"
 )
 
+// 16
 const pageHeaderSize = int(unsafe.Offsetof(((*page)(nil)).ptr))
 
 const minKeysPerPage = 2
 
+// 16
 const branchPageElementSize = int(unsafe.Sizeof(branchPageElement{}))
+// 16
 const leafPageElementSize = int(unsafe.Sizeof(leafPageElement{}))
 
 const (
@@ -95,7 +98,7 @@ func (s pages) Less(i, j int) bool { return s[i].id < s[j].id }
 
 // branchPageElement represents a node on a branch page.
 type branchPageElement struct {
-	pos   uint32
+	pos   uint32 // 该元信息和真实key之间的偏移量
 	ksize uint32
 	pgid  pgid
 }
@@ -108,7 +111,7 @@ func (n *branchPageElement) key() []byte {
 
 // leafPageElement represents a node on a leaf page.
 type leafPageElement struct {
-	flags uint32
+	flags uint32 // 用来区分子桶叶子节点元素还是普通的key/value叶子节点元素。flags值为1时表示子桶
 	pos   uint32
 	ksize uint32
 	vsize uint32
@@ -156,6 +159,7 @@ func (a pgids) merge(b pgids) pgids {
 
 // mergepgids copies the sorted union of a and b into dst.
 // If dst is too small, it panics.
+// a, b两个列表有序，将两个有序的列表按序合并到dst中
 func mergepgids(dst, a, b pgids) {
 	if len(dst) < len(a)+len(b) {
 		panic(fmt.Errorf("mergepgids bad len %d < %d + %d", len(dst), len(a), len(b)))
@@ -182,6 +186,7 @@ func mergepgids(dst, a, b pgids) {
 	// Continue while there are elements in the lead.
 	for len(lead) > 0 {
 		// Merge largest prefix of lead that is ahead of follow[0].
+		// 找到lead中第一个大于follow[0]的那个值的index
 		n := sort.Search(len(lead), func(i int) bool { return lead[i] > follow[0] })
 		merged = append(merged, lead[:n]...)
 		if n >= len(lead) {

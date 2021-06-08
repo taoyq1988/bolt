@@ -21,6 +21,7 @@ const (
 	minInt  = -maxInt - 1
 )
 
+// 16
 const bucketHeaderSize = int(unsafe.Sizeof(bucket{}))
 
 const (

@@ -9,8 +9,11 @@ import (
 // freelist represents a list of all pages that are available for allocation.
 // It also tracks pages that have been freed but are still in use by open transactions.
 type freelist struct {
+	// 已经可以重新利用的空闲页列表
 	ids     []pgid          // all free and available free page ids.
+	// 将来很快被释放掉的事务关联的页列表
 	pending map[txid][]pgid // mapping of soon-to-be free page ids by tx.
+	// 页id的缓存
 	cache   map[pgid]bool   // fast lookup of all free and pending page ids.
 }
 
@@ -64,6 +67,7 @@ func (f *freelist) copyall(dst []pgid) {
 
 // allocate returns the starting page id of a contiguous list of pages of a given size.
 // If a contiguous block cannot be found then 0 is returned.
+// 从freelist中能否找到一段连续的空闲页，数量=n
 func (f *freelist) allocate(n int) pgid {
 	if len(f.ids) == 0 {
 		return 0
@@ -77,6 +81,7 @@ func (f *freelist) allocate(n int) pgid {
 
 		// Reset initial page if this is not contiguous.
 		if previd == 0 || id-previd != 1 {
+			// 第一次不连续时记录一下第一个位置
 			initial = id
 		}
 

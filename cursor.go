@@ -17,7 +17,7 @@ import (
 // after mutating data.
 type Cursor struct {
 	bucket *Bucket
-	stack  []elemRef
+	stack  []elemRef // 保存遍历搜索的路径
 }
 
 // Bucket returns the bucket that this cursor was created from.

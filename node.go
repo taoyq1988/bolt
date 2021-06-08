@@ -196,6 +196,7 @@ func (n *node) write(p *page) {
 		p.flags |= branchPageFlag
 	}
 
+	// 溢出时会分裂
 	if len(n.inodes) >= 0xFFFF {
 		panic(fmt.Sprintf("inode overflow: %d (pgid=%d)", len(n.inodes), p.id))
 	}
@@ -595,10 +596,10 @@ func (s nodes) Less(i, j int) bool { return bytes.Compare(s[i].inodes[0].key, s[
 // It can be used to point to elements in a page or point
 // to an element which hasn't been added to a page yet.
 type inode struct {
-	flags uint32
-	pgid  pgid
+	flags uint32 // 表示是否是子桶叶子节点还是普通叶子节点。如果flags值为1表示子桶叶子节点，否则为普通叶子节点
+	pgid  pgid // 当inode为分支元素时，pgid才有值，为叶子元素时，则没值
 	key   []byte
-	value []byte
+	value []byte // 当inode为分支元素时，value为空，为叶子元素时，才有值
 }
 
 type inodes []inode

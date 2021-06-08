@@ -4,6 +4,9 @@ GOLDFLAGS="-X main.branch $(BRANCH) -X main.commit $(COMMIT)"
 
 default: build
 
+build: cmd/bolt
+	@cd cmd/bolt && go build && mv bolt ${GOPATH}/bin
+
 race:
 	@go test -v -race -test.run="TestSimulate_(100op|1000op)"
 
